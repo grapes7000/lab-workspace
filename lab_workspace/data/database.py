@@ -13,6 +13,18 @@ CREATE TABLE IF NOT EXISTS revisions (
  created_at TEXT NOT NULL, reason TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_revisions_key ON revisions(document_key, id DESC);
+CREATE TABLE IF NOT EXISTS deleted_fragments (
+ id INTEGER PRIMARY KEY, document_key TEXT NOT NULL, fragment TEXT NOT NULL,
+ position INTEGER NOT NULL, deleted_at TEXT NOT NULL, recovered_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_deleted_fragments_key
+ ON deleted_fragments(document_key, id DESC);
+CREATE TRIGGER IF NOT EXISTS revisions_no_delete
+BEFORE DELETE ON revisions BEGIN SELECT RAISE(ABORT, 'Revision history is append-only'); END;
+CREATE TRIGGER IF NOT EXISTS revisions_no_update
+BEFORE UPDATE ON revisions BEGIN SELECT RAISE(ABORT, 'Revision history is immutable'); END;
+CREATE TRIGGER IF NOT EXISTS deleted_fragments_no_delete
+BEFORE DELETE ON deleted_fragments BEGIN SELECT RAISE(ABORT, 'Deleted-text history is append-only'); END;
 """
 
 
@@ -72,3 +84,27 @@ class Database:
     def revision(self, revision_id):
         with self.connect() as connection:
             return connection.execute("SELECT * FROM revisions WHERE id=?", (revision_id,)).fetchone()
+
+    def record_deleted_fragment(self, key, fragment, position):
+        if not fragment: return None
+        with self.connect() as connection:
+            cursor = connection.execute(
+                "INSERT INTO deleted_fragments(document_key,fragment,position,deleted_at) VALUES(?,?,?,?)",
+                (key, fragment, position, now()),
+            )
+            return int(cursor.lastrowid)
+
+    def latest_deleted_fragment(self, key="scratchpad", include_recovered=False):
+        clause = "" if include_recovered else "AND recovered_at IS NULL"
+        with self.connect() as connection:
+            return connection.execute(
+                f"SELECT * FROM deleted_fragments WHERE document_key=? {clause} ORDER BY id DESC LIMIT 1",
+                (key,),
+            ).fetchone()
+
+    def mark_fragment_recovered(self, fragment_id):
+        with self.connect() as connection:
+            connection.execute(
+                "UPDATE deleted_fragments SET recovered_at=? WHERE id=? AND recovered_at IS NULL",
+                (now(), fragment_id),
+            )

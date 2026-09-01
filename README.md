@@ -1,4 +1,4 @@
-# Lab Workspace v1
+# Lab Workspace v1.1
 
 Cross-platform PySide6 desktop workspace for Windows and Linux.
 
@@ -66,3 +66,16 @@ python -m lab_workspace
 ## Important
 
 Use nonconfidential test data first. This is a local v1 application, not a validated laboratory information management system. Verify all scientific calculations independently before operational use.
+
+## v1.1 Markdown and scratchpad behavior
+
+- The Final Document offers Edit, Preview, and Side-by-Side modes.
+- Preview is live and uses Qt's native Markdown renderer.
+- Markdown source remains the authoritative saved content.
+- Scratchpad deletions are captured as immutable database records.
+- The latest unrecovered deletion appears in a faint ghost strip.
+- Press Tab while focused in the scratchpad to restore that fragment.
+- Older complete scratchpad states remain available through History.
+- SQLite triggers prevent revision updates or deletions.
+
+Tab is reserved for recovery in the scratchpad. Use spaces if indentation is needed.
