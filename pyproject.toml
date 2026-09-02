@@ -1,9 +1,8 @@
 [project]
-name = "lab-workspace"
-version = "1.0.0"
-description = "Cross-platform laboratory writing workspace"
-requires-python = ">=3.10"
-dependencies = ["PySide6>=6.7,<7"]
+name="lab-workspace"
+version="1.2.0"
+requires-python=">=3.10"
+dependencies=["PySide6>=6.7,<7","openpyxl>=3.1,<4"]
 
 [project.scripts]
 lab-workspace = "lab_workspace.__main__:main"

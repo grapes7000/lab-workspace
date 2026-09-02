@@ -1,31 +1,23 @@
-# Lab Workspace v1.1
+# Lab Workspace v1.2
 
-Cross-platform PySide6 desktop workspace for Windows and Linux.
+Cross-platform PySide6 laboratory workspace for Windows and Linux.
 
-## Included in v1
+## Features
 
-- Collapsible scientific calculator on the left
-- Quick laboratory calculations for mass, moles, molarity, dilution, and ppm
-- Upper scratchpad with debounced autosave and revision history
-- Lower final-document editor with autosave, open, save, Save As, Markdown export, and revision history
-- Resizable upper/lower editor split
-- SQLite persistence stored locally
-- Restore-safe history: restoring creates a new revision
-- Diff viewer with deleted lines muted red and added lines green
-- Find text in either editor
-- Word and character counts
-- Light and dark themes
-- Window and splitter state restoration
-- Cross-platform paths through `pathlib`
+- Scratchpad and final Markdown editor with Edit, Preview, and Side-by-Side modes
+- Offline rich Markdown preview with local images, KaTeX math, code highlighting, and Mermaid diagrams
+- Append-only document revisions
+- Material library with formula, molar mass, density, purity, active fraction, form, and notes
+- Sample registry for gasoline, fuels, blends, additives, references, and other samples
+- Test-method definitions, test requests, and structured result entry
+- Stoichiometry reactant/product tables with formula parsing, molar mass, mass, volume, density, moles, balance checking, limiting reagent, excess, theoretical yield, and actual yield
+- Searchable materials, samples, and test requests
+- CSV import/export and XLSX workbook export/import
+- Immutable calculation history and Markdown reports
 
-## Requirements
+## Run
 
-- Python 3.10 or newer
-- PySide6
-
-## Install
-
-### Windows PowerShell
+Windows PowerShell:
 
 ```powershell
 python -m venv .venv
@@ -34,7 +26,7 @@ python -m pip install -r requirements.txt
 python -m lab_workspace
 ```
 
-### Linux Bash
+Linux:
 
 ```bash
 python3 -m venv .venv
@@ -43,39 +35,6 @@ python -m pip install -r requirements.txt
 python -m lab_workspace
 ```
 
-If PySide6 is already available in a Conda environment, activate that environment and run `python -m lab_workspace`.
-
-## Data locations
-
-By default, application data is stored in the project-local `data/` directory. Set `LAB_WORKSPACE_DATA_DIR` to use another location.
-
-Windows PowerShell:
-
-```powershell
-$env:LAB_WORKSPACE_DATA_DIR = "$HOME\LabWorkspaceData"
-python -m lab_workspace
-```
-
-Linux Bash:
-
-```bash
-export LAB_WORKSPACE_DATA_DIR="$HOME/.local/share/lab-workspace"
-python -m lab_workspace
-```
-
 ## Important
 
-Use nonconfidential test data first. This is a local v1 application, not a validated laboratory information management system. Verify all scientific calculations independently before operational use.
-
-## v1.1 Markdown and scratchpad behavior
-
-- The Final Document offers Edit, Preview, and Side-by-Side modes.
-- Preview is live and uses Qt's native Markdown renderer.
-- Markdown source remains the authoritative saved content.
-- Scratchpad deletions are captured as immutable database records.
-- The latest unrecovered deletion appears in a faint ghost strip.
-- Press Tab while focused in the scratchpad to restore that fragment.
-- Older complete scratchpad states remain available through History.
-- SQLite triggers prevent revision updates or deletions.
-
-Tab is reserved for recovery in the scratchpad. Use spaces if indentation is needed.
+Use fictional data for initial testing. This is not a validated LIMS. Independently verify calculations and imported results before operational use. SQLite is the source of truth; CSV and XLSX are interchange formats.

@@ -1,10 +1,6 @@
 __pycache__/
 *.py[cod]
 .venv/
-.vscode/
-.idea/
-data/*.db
-data/*.db-*
-data/*.log
+data/*.db*
 exports/*
 !exports/.gitkeep

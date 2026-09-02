@@ -1,12 +1,13 @@
 import os
 from pathlib import Path
+ROOT=Path(__file__).resolve().parents[2]
+DATA=Path(os.environ.get("LAB_WORKSPACE_DATA_DIR",ROOT/"data")).expanduser()
+DB=DATA/"lab_workspace_combined.db"
+EXPORTS=ROOT/"exports"
+def ensure():
+ DATA.mkdir(parents=True,exist_ok=True); EXPORTS.mkdir(parents=True,exist_ok=True)
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DATA_DIR = Path(os.environ.get("LAB_WORKSPACE_DATA_DIR", PROJECT_ROOT / "data")).expanduser()
-EXPORT_DIR = PROJECT_ROOT / "exports"
-DATABASE_PATH = DATA_DIR / "lab_workspace.db"
-
-
-def ensure_directories() -> None:
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    EXPORT_DIR.mkdir(parents=True, exist_ok=True)
+# Names used by the restored writing workspace.
+DATABASE_PATH=DB
+EXPORT_DIR=EXPORTS
+ensure_directories=ensure

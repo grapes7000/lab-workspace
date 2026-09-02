@@ -1,36 +1,67 @@
-DARK = """
-QWidget { background:#17191d; color:#e8eaed; font-size:13px; }
-QMainWindow, QDialog { background:#17191d; }
-QPlainTextEdit, QLineEdit, QComboBox, QDoubleSpinBox, QListWidget {
- background:#202329; border:1px solid #3a3f48; border-radius:6px; padding:6px;
- selection-background-color:#315f8c;
-}
-QToolBar { background:#202329; border-bottom:1px solid #343943; spacing:5px; padding:5px; }
-QPushButton, QToolButton { background:#2b3038; border:1px solid #414852; border-radius:6px; padding:6px 10px; }
-QPushButton:hover, QToolButton:hover { background:#363d47; }
-QPushButton:pressed, QToolButton:pressed { background:#1f6aa5; }
-QLabel#PanelTitle { font-size:15px; font-weight:600; }
-QLabel#GhostText { color:#8d939d; background:#202329; border:1px dashed #3a3f48; border-radius:5px; padding:6px; }
-QDockWidget::title { background:#202329; padding:7px; }
-QStatusBar { background:#202329; }
-QSplitter::handle { background:#343943; }
-"""
 LIGHT = """
-QWidget { background:#f5f6f8; color:#1f2328; font-size:13px; }
-QPlainTextEdit, QLineEdit, QComboBox, QDoubleSpinBox, QListWidget {
- background:white; border:1px solid #c7ccd4; border-radius:6px; padding:6px;
- selection-background-color:#9cc9f0;
+QWidget { background:#F5F5F6; color:#292B2F; font-size:13px; }
+QMainWindow, QDialog { background:#F5F5F6; }
+QWidget#WorkPane { background:#FFFFFF; border:0; border-radius:0; }
+QWidget#PaneHeader { background:#FFFFFF; border:0; border-bottom:1px solid #D3D4D7; border-radius:0; }
+QPlainTextEdit, QTextBrowser, QLineEdit, QComboBox, QDoubleSpinBox, QListWidget, QTableWidget {
+ background:#FFFFFF; border:1px solid #D0D1D4; border-radius:3px; padding:6px;
+ selection-background-color:#B9D8F2;
 }
-QToolBar { background:#ffffff; border-bottom:1px solid #d8dce2; spacing:5px; padding:5px; }
-QPushButton, QToolButton { background:#ffffff; border:1px solid #c7ccd4; border-radius:6px; padding:6px 10px; }
-QPushButton:hover, QToolButton:hover { background:#edf2f7; }
-QLabel#PanelTitle { font-size:15px; font-weight:600; }
-QLabel#GhostText { color:#727881; background:#f0f1f3; border:1px dashed #c7ccd4; border-radius:5px; padding:6px; }
-QDockWidget::title { background:#ffffff; padding:7px; }
-QStatusBar { background:#ffffff; }
-QSplitter::handle { background:#c7ccd4; }
+QToolBar { background:#F1F1F2; border:0; border-bottom:1px solid #D3D4D7; spacing:1px; padding:4px; }
+QPushButton, QToolButton {
+ background:transparent; border:1px solid transparent; border-bottom:0;
+ border-radius:4px 4px 0 0; padding:7px 10px;
+}
+QPushButton:hover, QToolButton:hover {
+ background:#E1E2E5; border-top-color:#D1D2D5; border-left-color:#D1D2D5; border-right-color:#D1D2D5;
+}
+QPushButton:pressed, QToolButton:pressed {
+ background:#D7D8DB; border-top-color:#C5C6C9; border-left-color:#C5C6C9; border-right-color:#C5C6C9;
+ padding:8px 9px 6px 11px;
+}
+QHeaderView::section { background:#F0F0F1; border:0; border-right:1px solid #D3D4D7; border-bottom:1px solid #D3D4D7; padding:5px; }
+QLabel#PanelTitle { font-size:15px; font-weight:600; background:transparent; }
+QDockWidget::title { background:#F1F1F2; border:0; border-bottom:1px solid #D3D4D7; padding:5px 7px; }
+QStatusBar, QMenuBar { background:#F5F5F6; border:0; border-top:1px solid #D3D4D7; }
+QMenu { background:#FFFFFF; border:1px solid #D3D4D7; }
+QMenu::item:selected { background:#F1F1F2; }
+QSplitter::handle { background:#D3D4D7; }
+QSplitter::handle:horizontal { width:2px; }
+QSplitter::handle:vertical { height:2px; }
+"""
+
+DARK = """
+QWidget { background:#202124; color:#ECEEF1; font-size:13px; }
+QMainWindow, QDialog { background:#202124; }
+QWidget#WorkPane { background:#25262A; border:0; border-radius:0; }
+QWidget#PaneHeader { background:#25262A; border:0; border-bottom:1px solid #414349; border-radius:0; }
+QPlainTextEdit, QTextBrowser, QLineEdit, QComboBox, QDoubleSpinBox, QListWidget, QTableWidget {
+ background:#2A2B2F; border:1px solid #46484E; border-radius:3px; padding:6px;
+ selection-background-color:#315F8C;
+}
+QToolBar { background:#25262A; border:0; border-bottom:1px solid #414349; spacing:1px; padding:4px; }
+QPushButton, QToolButton {
+ background:transparent; border:1px solid transparent; border-bottom:0;
+ border-radius:4px 4px 0 0; padding:7px 10px;
+}
+QPushButton:hover, QToolButton:hover {
+ background:#383A40; border-top-color:#4A4C52; border-left-color:#4A4C52; border-right-color:#4A4C52;
+}
+QPushButton:pressed, QToolButton:pressed {
+ background:#303136; border-top-color:#24252A; border-left-color:#24252A; border-right-color:#24252A;
+ padding:8px 9px 6px 11px;
+}
+QHeaderView::section { background:#2F3035; border:0; border-right:1px solid #414349; border-bottom:1px solid #414349; padding:5px; }
+QLabel#PanelTitle { font-size:15px; font-weight:600; background:transparent; }
+QDockWidget::title { background:#25262A; border:0; border-bottom:1px solid #414349; padding:5px 7px; }
+QStatusBar, QMenuBar { background:#202124; border:0; border-top:1px solid #414349; }
+QMenu { background:#2A2B2F; border:1px solid #414349; }
+QMenu::item:selected { background:#35363B; }
+QSplitter::handle { background:#414349; }
+QSplitter::handle:horizontal { width:2px; }
+QSplitter::handle:vertical { height:2px; }
 """
 
 
 def apply_theme(app, name):
-    app.setStyleSheet(LIGHT if name == "light" else DARK)
+    app.setStyleSheet(DARK if name == "dark" else LIGHT)

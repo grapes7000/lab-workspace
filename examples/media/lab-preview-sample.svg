@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="220" viewBox="0 0 720 220" role="img" aria-labelledby="title description">
+  <title id="title">Laboratory workflow illustration</title>
+  <desc id="description">A simple diagram showing sample, analysis, and report stages.</desc>
+  <rect width="720" height="220" fill="#f5f5f6"/>
+  <g font-family="sans-serif" font-size="18" fill="#292b2f" text-anchor="middle">
+    <rect x="45" y="70" width="180" height="80" rx="5" fill="#ffffff" stroke="#d0d1d4"/>
+    <text x="135" y="115">Sample</text>
+    <rect x="270" y="70" width="180" height="80" rx="5" fill="#ffffff" stroke="#d0d1d4"/>
+    <text x="360" y="115">Analysis</text>
+    <rect x="495" y="70" width="180" height="80" rx="5" fill="#ffffff" stroke="#d0d1d4"/>
+    <text x="585" y="115">Report</text>
+  </g>
+  <g stroke="#73767d" stroke-width="2" fill="none">
+    <path d="M225 110h40m-10-8 10 8-10 8"/>
+    <path d="M450 110h40m-10-8 10 8-10 8"/>
+  </g>
+</svg>
