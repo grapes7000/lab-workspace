@@ -26,9 +26,11 @@ from lab_workspace.ui.stoichiometry import StoichiometryPage
 from lab_workspace.ui.theme import apply_theme
 from lab_workspace.ui.workspace_explorer import WorkspaceExplorer
 from lab_workspace.ui.workspace_shell import CenterHost
+from lab_workspace.ui.safe_docking import ToolHost
 
 
 class MainWindow(QMainWindow):
+    LAYOUT_STATE_VERSION = 2
     TOOL_TITLES = {
         "writing": "Writing",
         "calculator": "Science Calculator",
@@ -51,6 +53,8 @@ class MainWindow(QMainWindow):
         self.current_workspace_id = None
         self.loading = False
         self.tool_docks = {}
+        self.tool_hosts = {}
+        self.tool_widgets = {}
         self.tool_last_areas = dict(self.TOOL_DEFAULT_AREAS)
 
         self.setWindowTitle("Lab Workspace")
@@ -115,7 +119,18 @@ class MainWindow(QMainWindow):
         return dock
 
     def register_tool_dock(self, key, dock, area):
+        tool = dock.widget()
+        if tool is None:
+            raise RuntimeError(f"Tool dock {key!r} has no content widget")
+        # Replace the dock's managed content before handing the tool to the
+        # host.  QDockWidget's internal layout must never retain the tool while
+        # that tool is attached to a center-pane layout.
+        host = ToolHost(None, dock)
+        dock.setWidget(host)
+        host.set_tool(tool)
         self.tool_docks[key] = dock
+        self.tool_hosts[key] = host
+        self.tool_widgets[key] = tool
         self.tool_last_areas[key] = area
         self.addDockWidget(area, dock)
         dock.dockLocationChanged.connect(
@@ -361,26 +376,26 @@ class MainWindow(QMainWindow):
 
         current_slot = self.center_slot_for_tool(key)
         if current_slot == slot:
-            self.tool_docks[key].show()
-            self.tool_docks[key].raise_()
+            self.tool_widgets[key].show()
+            self.tool_widgets[key].setFocus(Qt.FocusReason.OtherFocusReason)
             return
         if current_slot is not None:
-            self.center_host.pane(current_slot).detach()
+            content = self.center_host.pane(current_slot).detach()
+        else:
+            dock = self.tool_docks[key]
+            dock.hide()
+            area = self.dockWidgetArea(dock)
+            if area != Qt.DockWidgetArea.NoDockWidgetArea:
+                self.remember_tool_area(key, area)
+            self.removeDockWidget(dock)
+            content = self.tool_hosts[key].take_tool()
 
         target = self.center_host.pane(slot)
         if target.current_key is not None and target.current_key != key:
             self.move_center_tool_to_dock(slot, show=False)
 
-        dock = self.tool_docks[key]
-        area = self.dockWidgetArea(dock)
-        if area != Qt.DockWidgetArea.NoDockWidgetArea:
-            self.remember_tool_area(key, area)
-        self.removeDockWidget(dock)
-        if dock.isFloating():
-            dock.setFloating(False)
-        dock.setParent(target.content)
-        target.attach(key, self.TOOL_TITLES[key], dock)
-        dock.show()
+        target.attach(key, self.TOOL_TITLES[key], content)
+        content.show()
         self.settings.setValue(f"center/tool{slot}", key)
 
     def move_center_tool_to_dock(self, slot, show=False):
@@ -388,10 +403,11 @@ class MainWindow(QMainWindow):
         key = pane.current_key
         if key is None:
             return
-        dock = pane.detach()
-        if dock is None:
+        content = pane.detach()
+        if content is None:
             return
-        dock.setParent(self)
+        self.tool_hosts[key].set_tool(content)
+        dock = self.tool_docks[key]
         area = self.tool_last_areas.get(key, self.TOOL_DEFAULT_AREAS[key])
         self.addDockWidget(area, dock)
         if show:
@@ -427,16 +443,14 @@ class MainWindow(QMainWindow):
     def toggle_tool(self, key):
         slot = self.center_slot_for_tool(key)
         if slot is not None:
-            dock = self.tool_docks[key]
-            dock.show()
-            dock.raise_()
+            self.tool_widgets[key].show()
+            self.tool_widgets[key].setFocus(Qt.FocusReason.OtherFocusReason)
             return
         dock = self.tool_docks[key]
         if dock.isVisible():
             dock.hide()
         else:
             if self.dockWidgetArea(dock) == Qt.DockWidgetArea.NoDockWidgetArea:
-                dock.setParent(self)
                 self.addDockWidget(
                     self.tool_last_areas.get(key, self.TOOL_DEFAULT_AREAS[key]), dock
                 )
@@ -566,8 +580,13 @@ class MainWindow(QMainWindow):
         self.scratch.recover_requested.connect(self.recover_deleted)
 
     def load_state(self):
-        geometry = self.settings.value("geometry")
-        state = self.settings.value("windowState")
+        try:
+            layout_version = int(self.settings.value("layoutStateVersion", 0))
+        except (TypeError, ValueError):
+            layout_version = 0
+        layout_is_current = layout_version == self.LAYOUT_STATE_VERSION
+        geometry = self.settings.value("geometryV2") if layout_is_current else None
+        state = self.settings.value("windowStateV2") if layout_is_current else None
         writing_splitter = self.settings.value("writingSplitter")
         if geometry:
             self.restoreGeometry(geometry)
@@ -880,8 +899,9 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         self.autosave.stop()
         self.save_both()
-        self.settings.setValue("geometry", self.saveGeometry())
-        self.settings.setValue("windowState", self.saveState())
+        self.settings.setValue("layoutStateVersion", self.LAYOUT_STATE_VERSION)
+        self.settings.setValue("geometryV2", self.saveGeometry())
+        self.settings.setValue("windowStateV2", self.saveState())
         self.settings.setValue("writingSplitter", self.writing_splitter.saveState())
         self.settings.setValue(
             "center/orientation", int(self.center_host.splitter.orientation().value)
