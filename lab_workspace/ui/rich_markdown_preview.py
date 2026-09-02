@@ -49,7 +49,7 @@ class RichMarkdownPreview(QWebEngineView):
         source = json.dumps(markdown).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
         assets = {name: cls._asset_url(name) for name in (
             "katex.min.css", "highlight-github.min.css", "markdown-it.min.js",
-            "markdown-it-task-lists.min.js", "katex.min.js", "katex-auto-render.min.js",
+            "markdown-it-task-lists.min.js", "katex.min.js", "mhchem.min.js", "katex-auto-render.min.js",
             "highlight.min.js", "mermaid.min.js",
         )}
         return f"""<!doctype html>
@@ -57,7 +57,7 @@ class RichMarkdownPreview(QWebEngineView):
 <link rel=\"stylesheet\" href=\"{assets['katex.min.css']}\"><link rel=\"stylesheet\" href=\"{assets['highlight-github.min.css']}\">
 <style>body{{margin:12px;color:#292b2f;background:#fff;font:14px sans-serif;line-height:1.5}}img{{max-width:100%;height:auto}}pre{{padding:10px;background:#f5f5f6;border:1px solid #d3d4d7;border-radius:3px;overflow:auto}}code{{font-family:monospace}}table{{border-collapse:collapse}}th,td{{padding:6px 8px;border:1px solid #d3d4d7}}th{{background:#f0f0f1}}blockquote{{margin-left:0;padding-left:12px;border-left:3px solid #d3d4d7;color:#73767d}}.mermaid-error{{color:#9f2222;white-space:pre-wrap}}</style>
 </head><body><main id=\"content\"></main>
-<script src=\"{assets['markdown-it.min.js']}\"></script><script src=\"{assets['markdown-it-task-lists.min.js']}\"></script><script src=\"{assets['katex.min.js']}\"></script><script src=\"{assets['katex-auto-render.min.js']}\"></script><script src=\"{assets['highlight.min.js']}\"></script><script src=\"{assets['mermaid.min.js']}\"></script>
+<script src=\"{assets['markdown-it.min.js']}\"></script><script src=\"{assets['markdown-it-task-lists.min.js']}\"></script><script src=\"{assets['katex.min.js']}\"></script><script src=\"{assets['mhchem.min.js']}\"></script><script src=\"{assets['katex-auto-render.min.js']}\"></script><script src=\"{assets['highlight.min.js']}\"></script><script src=\"{assets['mermaid.min.js']}\"></script>
 <script>
 const source = {source};
 const content = document.getElementById('content');

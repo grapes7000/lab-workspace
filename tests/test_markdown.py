@@ -20,8 +20,12 @@ class MarkdownTests(unittest.TestCase):
         self.assertIn("html:false", html)
         self.assertIn("\\u003cscript", html)
         self.assertNotIn("https://", html)
-        for name in ("markdown-it.min.js", "katex.min.js", "highlight.min.js", "mermaid.min.js"):
+        for name in ("markdown-it.min.js", "katex.min.js", "mhchem.min.js", "highlight.min.js", "mermaid.min.js"):
             self.assertTrue((ASSET_DIR / name).is_file())
+        self.assertLess(
+            html.index("mhchem.min.js"),
+            html.index("katex-auto-render.min.js"),
+        )
 
 
 if __name__ == "__main__":

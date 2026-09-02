@@ -57,6 +57,18 @@ $$
 C = \frac{n}{V} = \frac{0.250\ \mathrm{mol}}{0.500\ \mathrm{L}} = 0.500\ \mathrm{mol\,L^{-1}}
 $$
 
+## Chemistry with mhchem
+
+Use KaTeX's mhchem syntax inside the same math delimiters. Inline reaction: $\ce{2H2 + O2 -> 2H2O}$.
+
+Display reaction with conditions:
+
+$$
+\ce{CH4 + 2O2 -> CO2 + 2H2O}
+$$
+
+Units are supported with `\pu`: $\pu{25 ^\circ C}$ and $\pu{0.500 mol.L^-1}$.
+
 ## Syntax-highlighted code
 
 ```python
