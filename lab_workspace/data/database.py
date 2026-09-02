@@ -26,8 +26,11 @@ class Database:
  def __init__(self):
   ensure()
   with self.connect() as c:c.executescript(SCHEMA)
+  with self.connect() as c:legacy_documents='title' in {row[1] for row in c.execute('PRAGMA table_info(documents)')}
   for k in ('scratchpad','final'):
-   with self.connect() as c:c.execute("INSERT OR IGNORE INTO documents VALUES(?,?,?)",(k,'',now()))
+   with self.connect() as c:
+    if legacy_documents:c.execute("INSERT OR IGNORE INTO documents(key,title,current_text,updated_at) VALUES(?,?,?,?)",(k,k.replace('_',' ').title(),'',now()))
+    else:c.execute("INSERT OR IGNORE INTO documents(key,current_text,updated_at) VALUES(?,?,?)",(k,'',now()))
   self.seed_methods()
  @contextmanager
  def connect(self):
