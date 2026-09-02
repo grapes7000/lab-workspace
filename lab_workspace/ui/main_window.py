@@ -2,7 +2,7 @@ from pathlib import Path
 
 from PySide6.QtCore import Qt, QSettings, QTimer
 from PySide6.QtGui import QAction, QKeySequence
-from PySide6.QtWidgets import QApplication, QFileDialog, QInputDialog, QMainWindow, QMessageBox, QSplitter, QTabWidget, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QApplication, QDockWidget, QFileDialog, QInputDialog, QMainWindow, QMessageBox, QSplitter, QVBoxLayout, QWidget
 
 from lab_workspace.core.config import EXPORT_DIR
 from lab_workspace.ui.calculator_dock import CalculatorDock
@@ -23,6 +23,12 @@ class MainWindow(QMainWindow):
         self.loading = False
         self.setWindowTitle("Lab Workspace")
         self.resize(1500, 900)
+        self.setDockOptions(
+            QMainWindow.DockOption.AnimatedDocks
+            | QMainWindow.DockOption.AllowNestedDocks
+            | QMainWindow.DockOption.AllowTabbedDocks
+            | QMainWindow.DockOption.GroupedDragging
+        )
         apply_theme(QApplication.instance(), self.settings.value("theme", "dark"))
 
         self.scratch = ScratchpadPanel("Scratchpad", "Temporary notes. Deleted text is preserved and recoverable with Tab.")
@@ -36,14 +42,16 @@ class MainWindow(QMainWindow):
         writing_layout.setContentsMargins(0, 0, 0, 0)
         writing_layout.addWidget(self.splitter)
 
-        self.tabs = QTabWidget()
-        self.tabs.addTab(writing_page, "Writing Workspace")
-        self.tabs.addTab(LibraryPage(database), "Materials & Samples")
-        self.tabs.addTab(StoichiometryPage(database, self), "Stoichiometry")
-        self.setCentralWidget(self.tabs)
+        self.setCentralWidget(writing_page)
 
         self.calculator = CalculatorDock(self)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.calculator)
+        self.library = self.create_workspace_dock("Materials & Samples", "materialsSamplesDock", LibraryPage(database))
+        self.stoichiometry = self.create_workspace_dock("Stoichiometry", "stoichiometryDock", StoichiometryPage(database, self))
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.library)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.stoichiometry)
+        self.splitDockWidget(self.library, self.stoichiometry, Qt.Orientation.Vertical)
+        self.resizeDocks([self.calculator, self.library, self.stoichiometry], [300, 390, 390], Qt.Orientation.Horizontal)
         self.calculator.result_ready.connect(self.copy_calculator_result)
         self.build_actions()
         self.build_menus()
@@ -56,6 +64,13 @@ class MainWindow(QMainWindow):
         self.autosave.timeout.connect(self.save_both)
         self.statusBar().showMessage("Ready")
 
+    def create_workspace_dock(self, title, object_name, widget):
+        dock = QDockWidget(title, self)
+        dock.setObjectName(object_name)
+        dock.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
+        dock.setWidget(widget)
+        return dock
+
     def build_actions(self):
         self.new_action = QAction("New Final Document", self, shortcut=QKeySequence.StandardKey.New, triggered=self.new_final)
         self.open_action = QAction("Open...", self, shortcut=QKeySequence.StandardKey.Open, triggered=self.open_final)
@@ -66,6 +81,10 @@ class MainWindow(QMainWindow):
         self.find_action = QAction("Find...", self, shortcut=QKeySequence.StandardKey.Find, triggered=self.find_text)
         self.calc_action = self.calculator.toggleViewAction()
         self.calc_action.setText("Science Calculator")
+        self.library_action = self.library.toggleViewAction()
+        self.library_action.setText("Materials & Samples")
+        self.stoichiometry_action = self.stoichiometry.toggleViewAction()
+        self.stoichiometry_action.setText("Stoichiometry")
         self.theme_action = QAction("Toggle Light/Dark", self, triggered=self.toggle_theme)
         self.about_action = QAction("About", self, triggered=self.about)
 
@@ -78,6 +97,8 @@ class MainWindow(QMainWindow):
         self.menuBar().addMenu("Edit").addAction(self.find_action)
         view_menu = self.menuBar().addMenu("View")
         view_menu.addAction(self.calc_action)
+        view_menu.addAction(self.library_action)
+        view_menu.addAction(self.stoichiometry_action)
         view_menu.addAction(self.theme_action)
         self.menuBar().addMenu("Help").addAction(self.about_action)
 
@@ -222,7 +243,6 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "Find", "Text not found from the current cursor position.")
 
     def append_markdown(self, text):
-        self.tabs.setCurrentIndex(0)
         self.final.editor.appendPlainText("\n" + text)
         self.final.update_preview()
 
