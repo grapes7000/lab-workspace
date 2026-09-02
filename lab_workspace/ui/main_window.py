@@ -132,6 +132,10 @@ class MainWindow(QMainWindow):
         self.scratch.set_initial_text(self.database.get_text("scratchpad"))
         self.final.set_text(self.database.get_text("final"))
         self.loading = False
+        saved_file = self.settings.value("currentFile", "")
+        if saved_file and Path(saved_file).is_file():
+            self.set_current_file(saved_file)
+            self.final.update_preview()
         latest = self.database.latest_deleted_fragment()
         if latest:
             self.scratch.set_ghost(latest["fragment"])
@@ -144,6 +148,16 @@ class MainWindow(QMainWindow):
             self.restoreState(state)
         if splitter:
             self.splitter.restoreState(splitter)
+
+    def set_current_file(self, path):
+        self.current_file = Path(path) if path else None
+        self.final.set_document_path(self.current_file)
+        if self.current_file:
+            self.settings.setValue("currentFile", str(self.current_file))
+            self.setWindowTitle(f"Lab Workspace - {self.current_file.name}")
+        else:
+            self.settings.remove("currentFile")
+            self.setWindowTitle("Lab Workspace")
 
     def schedule_autosave(self):
         if not self.loading:
@@ -196,8 +210,7 @@ class MainWindow(QMainWindow):
     def new_final(self):
         if QMessageBox.question(self, "New Document", "Clear the final document? Its history remains permanent.") == QMessageBox.StandardButton.Yes:
             self.final.set_text("")
-            self.current_file = None
-            self.final.set_document_path(None)
+            self.set_current_file(None)
             self.database.save_text("final", "", "new document", True)
 
     def open_final(self):
@@ -209,11 +222,9 @@ class MainWindow(QMainWindow):
         except Exception as error:
             QMessageBox.critical(self, "Open Failed", str(error))
             return
-        self.current_file = Path(name)
-        self.final.set_document_path(self.current_file)
+        self.set_current_file(name)
         self.final.set_text(text)
         self.database.save_text("final", text, f"opened {self.current_file.name}", True)
-        self.setWindowTitle(f"Lab Workspace - {self.current_file.name}")
 
     def save_final_file(self):
         if self.current_file is None:
@@ -224,15 +235,14 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Save Failed", str(error))
             return False
         self.database.save_text("final", self.final.text(), f"saved {self.current_file.name}", True)
+        self.set_current_file(self.current_file)
         return True
 
     def save_final_as(self):
         name, _ = QFileDialog.getSaveFileName(self, "Save Final Markdown", str(EXPORT_DIR / "lab_note.md"), "Markdown (*.md);;Text (*.txt)")
         if not name:
             return False
-        self.current_file = Path(name)
-        self.final.set_document_path(self.current_file)
-        self.setWindowTitle(f"Lab Workspace - {self.current_file.name}")
+        self.set_current_file(name)
         return self.save_final_file()
 
     def export_workspace(self):
