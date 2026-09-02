@@ -5,8 +5,8 @@ QPlainTextEdit, QLineEdit, QComboBox, QDoubleSpinBox, QListWidget {
  background:#202329; border:1px solid #3a3f48; border-radius:6px; padding:6px;
  selection-background-color:#315f8c;
 }
-QToolBar { background:#202329; border-bottom:1px solid #343943; spacing:5px; padding:5px; }
-QPushButton, QToolButton { background:#2b3038; border:1px solid #414852; border-radius:6px; padding:6px 10px; }
+QToolBar { background:#202329; border-bottom:1px solid #343943; spacing:1px; padding:5px; }
+QPushButton, QToolButton, QTabBar::tab { background:#2b3038; border:1px solid #414852; border-radius:4px; padding:6px 10px; }
 QPushButton:hover, QToolButton:hover { background:#363d47; }
 QPushButton:pressed, QToolButton:pressed { background:#1f6aa5; }
 QLabel#PanelTitle { font-size:15px; font-weight:600; }
@@ -21,8 +21,8 @@ QPlainTextEdit, QLineEdit, QComboBox, QDoubleSpinBox, QListWidget {
  background:white; border:1px solid #c7ccd4; border-radius:6px; padding:6px;
  selection-background-color:#9cc9f0;
 }
-QToolBar { background:#ffffff; border-bottom:1px solid #d8dce2; spacing:5px; padding:5px; }
-QPushButton, QToolButton { background:#ffffff; border:1px solid #c7ccd4; border-radius:6px; padding:6px 10px; }
+QToolBar { background:#ffffff; border-bottom:1px solid #d8dce2; spacing:1px; padding:5px; }
+QPushButton, QToolButton, QTabBar::tab { background:#ffffff; border:1px solid #c7ccd4; border-radius:4px; padding:6px 10px; }
 QPushButton:hover, QToolButton:hover { background:#edf2f7; }
 QLabel#PanelTitle { font-size:15px; font-weight:600; }
 QLabel#GhostText { color:#727881; background:#f0f1f3; border:1px dashed #c7ccd4; border-radius:5px; padding:6px; }

@@ -5,7 +5,7 @@ from lab_workspace.core.chemistry import Species,calculate_reaction
 COLS=['Name','Formula','Coeff','MW g/mol','Mass','Mass unit','Volume','Volume unit','Density','Density unit','Moles','Amount unit','Purity %','Actual yield g']
 class StoichiometryPage(QWidget):
  def __init__(self,db,writing,parent=None):
-  super().__init__(parent);self.db=db;self.writing=writing;self.last_markdown='';layout=QVBoxLayout(self);top=QHBoxLayout();self.title=QLineEdit();self.title.setPlaceholderText('Reaction or calculation title');top.addWidget(self.title)
+  super().__init__(parent);self.db=db;self.writing=writing;self.last_markdown='';layout=QVBoxLayout(self);top=QHBoxLayout();top.setSpacing(1);self.title=QLineEdit();self.title.setPlaceholderText('Reaction or calculation title');top.addWidget(self.title)
   for label,fn in [('Add Reactant',lambda:self.add('reactant')),('Add Product',lambda:self.add('product')),('Remove Row',self.remove),('Calculate All',self.calculate),('Save Calculation',self.save),('Append to Final',self.append_final)]:b=QPushButton(label);b.clicked.connect(fn);top.addWidget(b)
   layout.addLayout(top);self.table=QTableWidget(0,len(COLS));self.table.setHorizontalHeaderLabels(COLS);self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents);layout.addWidget(self.table);self.result=QPlainTextEdit();self.result.setReadOnly(True);layout.addWidget(QLabel('Results and calculation trace'));layout.addWidget(self.result);self.add('reactant');self.add('product')
  def add(self,side):

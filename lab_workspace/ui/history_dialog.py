@@ -16,7 +16,7 @@ class HistoryDialog(QDialog):
         layout.addWidget(QLabel("Select a revision to compare with the current text."))
         row = QHBoxLayout(); self.list = QListWidget(); self.diff = QPlainTextEdit(); self.diff.setReadOnly(True)
         row.addWidget(self.list, 1); row.addWidget(self.diff, 3); layout.addLayout(row)
-        buttons = QHBoxLayout(); buttons.addStretch(); restore = QPushButton("Restore Selected")
+        buttons = QHBoxLayout(); buttons.setSpacing(1); buttons.addStretch(); restore = QPushButton("Restore Selected")
         close = QPushButton("Close"); buttons.addWidget(restore); buttons.addWidget(close); layout.addLayout(buttons)
         self.rows = self.database.revisions(key)
         for item in self.rows:

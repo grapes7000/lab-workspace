@@ -11,6 +11,7 @@ class EditorPanel(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
         header = QHBoxLayout()
+        header.setSpacing(1)
         label = QLabel(title); label.setObjectName("PanelTitle")
         self.counter = QLabel("0 words | 0 characters")
         history = QPushButton("History")

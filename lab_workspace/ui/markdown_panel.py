@@ -11,6 +11,7 @@ class MarkdownPanel(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
         header = QHBoxLayout()
+        header.setSpacing(1)
         title = QLabel("Final Document")
         title.setObjectName("PanelTitle")
         self.counter = QLabel("0 words | 0 characters")
