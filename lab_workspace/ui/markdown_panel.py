@@ -1,7 +1,6 @@
 from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QStackedWidget, QSplitter, QTextBrowser
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QPlainTextEdit, QStackedWidget, QSplitter, QTextBrowser
 from PySide6.QtCore import Qt, Signal
-from lab_workspace.ui.editor_panel import EditorPanel
 
 
 class MarkdownPanel(QWidget):
@@ -20,10 +19,14 @@ class MarkdownPanel(QWidget):
         for widget in (title,): header.addWidget(widget)
         header.addStretch(); header.addWidget(self.counter)
         for widget in (self.edit_button,self.preview_button,self.split_button,checkpoint,history): header.addWidget(widget)
-        self.editor = EditorPanel("", "Write Markdown here.").editor
+        self.editor = QPlainTextEdit()
+        self.editor.setPlaceholderText("Write Markdown here.")
+        self.editor.setTabStopDistance(32)
         self.preview = QTextBrowser(); self.preview.setOpenExternalLinks(True)
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
-        self.split_editor = EditorPanel("", "Write Markdown here.").editor
+        self.split_editor = QPlainTextEdit()
+        self.split_editor.setPlaceholderText("Write Markdown here.")
+        self.split_editor.setTabStopDistance(32)
         self.split_preview = QTextBrowser(); self.split_preview.setOpenExternalLinks(True)
         self.splitter.addWidget(self.split_editor); self.splitter.addWidget(self.split_preview); self.splitter.setSizes([600,600])
         self.stack = QStackedWidget(); self.stack.addWidget(self.editor); self.stack.addWidget(self.preview); self.stack.addWidget(self.splitter)
