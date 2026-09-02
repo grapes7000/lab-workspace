@@ -3,7 +3,8 @@ from pathlib import Path
 from urllib.parse import quote
 
 from PySide6.QtCore import Qt, QTimer, QUrl, Signal
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QPlainTextEdit, QPushButton, QSplitter, QStackedWidget, QTextBrowser, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QPlainTextEdit, QPushButton, QSplitter, QStackedWidget, QVBoxLayout, QWidget
+from lab_workspace.ui.rich_markdown_preview import RichMarkdownPreview
 
 
 class MarkdownPanel(QWidget):
@@ -38,14 +39,12 @@ class MarkdownPanel(QWidget):
         self.editor = QPlainTextEdit()
         self.editor.setPlaceholderText("Write Markdown here.")
         self.editor.setTabStopDistance(32)
-        self.preview = QTextBrowser()
-        self.preview.setOpenExternalLinks(True)
+        self.preview = RichMarkdownPreview()
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
         self.split_editor = QPlainTextEdit()
         self.split_editor.setPlaceholderText("Write Markdown here.")
         self.split_editor.setTabStopDistance(32)
-        self.split_preview = QTextBrowser()
-        self.split_preview.setOpenExternalLinks(True)
+        self.split_preview = RichMarkdownPreview()
         self.splitter.addWidget(self.split_editor)
         self.splitter.addWidget(self.split_preview)
         self.splitter.setSizes([600, 600])
@@ -93,9 +92,8 @@ class MarkdownPanel(QWidget):
 
     def set_document_path(self, path):
         self.document_path = Path(path) if path else None
-        base_url = QUrl() if self.document_path is None else QUrl.fromLocalFile(str(self.document_path.parent) + os.sep)
-        self.preview.document().setBaseUrl(base_url)
-        self.split_preview.document().setBaseUrl(base_url)
+        self.preview.set_document_path(self.document_path)
+        self.split_preview.set_document_path(self.document_path)
 
     @staticmethod
     def image_markdown(path, document_path=None):
@@ -126,6 +124,5 @@ class MarkdownPanel(QWidget):
             button.setEnabled(button_index != index)
 
     def update_preview(self):
-        self.set_document_path(self.document_path)
-        self.preview.setMarkdown(self.text())
-        self.split_preview.setMarkdown(self.text())
+        self.preview.set_markdown(self.text(), self.document_path)
+        self.split_preview.set_markdown(self.text(), self.document_path)

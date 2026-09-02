@@ -209,9 +209,9 @@ class MainWindow(QMainWindow):
         except Exception as error:
             QMessageBox.critical(self, "Open Failed", str(error))
             return
-        self.final.set_text(text)
         self.current_file = Path(name)
         self.final.set_document_path(self.current_file)
+        self.final.set_text(text)
         self.database.save_text("final", text, f"opened {self.current_file.name}", True)
         self.setWindowTitle(f"Lab Workspace - {self.current_file.name}")
 

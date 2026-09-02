@@ -5,6 +5,7 @@ Cross-platform PySide6 laboratory workspace for Windows and Linux.
 ## Features
 
 - Scratchpad and final Markdown editor with Edit, Preview, and Side-by-Side modes
+- Offline rich Markdown preview with local images, KaTeX math, code highlighting, and Mermaid diagrams
 - Append-only document revisions
 - Material library with formula, molar mass, density, purity, active fraction, form, and notes
 - Sample registry for gasoline, fuels, blends, additives, references, and other samples
