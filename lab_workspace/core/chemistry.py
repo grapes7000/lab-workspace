@@ -55,7 +55,7 @@ class Species:
  side:str; name:str=""; formula:str=""; coefficient:float=1; mw:Optional[float]=None
  mass:Optional[float]=None; mass_unit:str="g"; volume:Optional[float]=None; volume_unit:str="mL"
  density:Optional[float]=None; density_unit:str="g/mL"; moles:Optional[float]=None; amount_unit:str="mol"
- purity:float=100; actual_yield:Optional[float]=None; warnings:list[str]=field(default_factory=list)
+ purity:float=100; active_fraction:float=100; actual_yield:Optional[float]=None; warnings:list[str]=field(default_factory=list)
 
 @dataclass
 class ReactionResult:
@@ -67,12 +67,12 @@ def derive(s):
  volume=convert(s.volume,s.volume_unit,"volume") if s.volume is not None else None
  density=convert(s.density,s.density_unit,"density") if s.density is not None else None
  moles=convert(s.moles,s.amount_unit,"amount") if s.moles is not None else None
- purity=s.purity/100
+ active_fraction=s.purity*s.active_fraction/10000
  if mass is None and volume is not None and density is not None: mass=volume*density
  if volume is None and mass is not None and density not in (None,0): volume=mass/density
  if density is None and mass is not None and volume not in (None,0): density=mass/volume
- if moles is None and mass is not None and mw not in (None,0): moles=mass*purity/mw
- if mass is None and moles is not None and mw is not None and purity>0: mass=moles*mw/purity
+ if moles is None and mass is not None and mw not in (None,0): moles=mass*active_fraction/mw
+ if mass is None and moles is not None and mw is not None and active_fraction>0: mass=moles*mw/active_fraction
  return {"mw":mw,"mass_g":mass,"volume_L":volume,"density_g_L":density,"moles":moles}
 
 def check_balance(species):

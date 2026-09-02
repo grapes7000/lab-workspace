@@ -6,6 +6,9 @@ class ChemistryTests(unittest.TestCase):
  def test_density_chain(self):
   d=derive(Species('reactant',mw=100,volume=10,volume_unit='mL',density=0.8,density_unit='g/mL'))
   self.assertAlmostEqual(d['mass_g'],8);self.assertAlmostEqual(d['moles'],.08)
+ def test_active_fraction_reduces_available_moles(self):
+  d=derive(Species('reactant',mw=100,mass=10,purity=80,active_fraction=25))
+  self.assertAlmostEqual(d['moles'],.02)
  def test_balanced(self):
   s=[Species('reactant',formula='H2',coefficient=2),Species('reactant',formula='O2'),Species('product',formula='H2O',coefficient=2)]
   self.assertTrue(check_balance(s)[0])

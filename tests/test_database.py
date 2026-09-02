@@ -8,4 +8,7 @@ class DatabaseTests(unittest.TestCase):
    db=database.Database();db.save_text('scratchpad','draft');m=db.save_material({'name':'Water','formula':'H2O'});s=db.save_sample({'name':'Fuel A','sample_type':'Gasoline'})
    self.assertEqual(len(db.search('materials','Water')),1);self.assertEqual(len(db.search('samples','Fuel')),1)
    self.assertEqual(db.get_text('scratchpad'),'draft');self.assertTrue(m.startswith('MAT-'));self.assertTrue(s.startswith('SMP-'))
+   db.save_sample({'code':s,'name':'Fuel B','sample_type':'Gasoline'})
+   self.assertEqual(db.search('samples','Fuel B')[0]['name'],'Fuel B')
+   with self.assertRaises(ValueError):db.next_code('samples; DROP TABLE samples','SMP')
 if __name__=='__main__':unittest.main()

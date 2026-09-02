@@ -91,17 +91,24 @@ class Database:
             return int(connection.execute("INSERT INTO deleted_fragments(document_key,fragment,position,deleted_at) VALUES(?,?,?,?)", (key, fragment, position, now())).lastrowid)
 
     def latest_deleted_fragment(self, key="scratchpad", include_recovered=False):
-        clause = "" if include_recovered else "AND recovered_at IS NULL"
         with self.connect() as connection:
-            return connection.execute(f"SELECT * FROM deleted_fragments WHERE document_key=? {clause} ORDER BY id DESC LIMIT 1", (key,)).fetchone()
+            if include_recovered:
+                return connection.execute("SELECT * FROM deleted_fragments WHERE document_key=? ORDER BY id DESC LIMIT 1", (key,)).fetchone()
+            return connection.execute("SELECT * FROM deleted_fragments WHERE document_key=? AND recovered_at IS NULL ORDER BY id DESC LIMIT 1", (key,)).fetchone()
 
     def mark_fragment_recovered(self, fragment_id):
         with self.connect() as connection:
             connection.execute("UPDATE deleted_fragments SET recovered_at=? WHERE id=? AND recovered_at IS NULL", (now(), fragment_id))
 
     def next_code(self, table, prefix):
+        queries = {
+            "materials": "SELECT COALESCE(MAX(id),0)+1 FROM materials",
+            "samples": "SELECT COALESCE(MAX(id),0)+1 FROM samples",
+        }
+        if table not in queries:
+            raise ValueError(f"Unsupported code table: {table}")
         with self.connect() as connection:
-            number = connection.execute(f"SELECT COALESCE(MAX(id),0)+1 FROM {table}").fetchone()[0]
+            number = connection.execute(queries[table]).fetchone()[0]
         return f"{prefix}-{datetime.now().year}-{number:04d}"
 
     def save_material(self, data):
@@ -118,24 +125,25 @@ class Database:
 
     def save_sample(self, data):
         code, timestamp = data.get("code") or self.next_code("samples", "SMP"), now()
-        columns = ["name", "sample_type", "project", "status", "source", "collection_location", "collection_date", "received_date", "fuel_grade", "nominal_ethanol", "lot_number", "quantity", "quantity_unit", "container", "storage_location", "parent_sample_code", "tags", "notes"]
-        values = [data.get(column, "") for column in columns]
+        fields = ("name", "sample_type", "project", "status", "source", "collection_location", "collection_date", "received_date", "fuel_grade", "nominal_ethanol", "lot_number", "quantity", "quantity_unit", "container", "storage_location", "parent_sample_code", "tags", "notes")
+        values = tuple(data.get(field, "") for field in fields)
         with self.connect() as connection:
             existing = connection.execute("SELECT * FROM samples WHERE code=?", (code,)).fetchone()
             if existing:
                 connection.execute("INSERT INTO sample_revisions(sample_id,snapshot_json,changed_at,reason) VALUES(?,?,?,?)", (existing["id"], json.dumps(dict(existing)), timestamp, "updated"))
-                connection.execute(f"UPDATE samples SET {','.join(column + '=?' for column in columns)},updated_at=? WHERE code=?", (*values, timestamp, code))
+                connection.execute("UPDATE samples SET name=?,sample_type=?,project=?,status=?,source=?,collection_location=?,collection_date=?,received_date=?,fuel_grade=?,nominal_ethanol=?,lot_number=?,quantity=?,quantity_unit=?,container=?,storage_location=?,parent_sample_code=?,tags=?,notes=?,updated_at=? WHERE code=?", (*values, timestamp, code))
             else:
-                connection.execute(f"INSERT INTO samples(code,{','.join(columns)},created_at,updated_at) VALUES(?,{','.join('?' for _ in columns)},?,?)", (code, *values, timestamp, timestamp))
+                connection.execute("INSERT INTO samples(code,name,sample_type,project,status,source,collection_location,collection_date,received_date,fuel_grade,nominal_ethanol,lot_number,quantity,quantity_unit,container,storage_location,parent_sample_code,tags,notes,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (code, *values, timestamp, timestamp))
         return code
 
     def search(self, table, term=""):
-        allowed = {"materials": ("name", "formula", "aliases", "tags", "notes", "code"), "samples": ("name", "sample_type", "project", "source", "fuel_grade", "lot_number", "tags", "notes", "code")}
-        if table not in allowed:
-            raise ValueError(f"Unsupported table: {table}")
-        columns, pattern = allowed[table], f"%{term}%"
+        pattern = f"%{term}%"
         with self.connect() as connection:
-            return connection.execute(f"SELECT * FROM {table} WHERE {' OR '.join(column + ' LIKE ?' for column in columns)} ORDER BY id DESC", (pattern,) * len(columns)).fetchall()
+            if table == "materials":
+                return connection.execute("SELECT * FROM materials WHERE name LIKE ? OR formula LIKE ? OR aliases LIKE ? OR tags LIKE ? OR notes LIKE ? OR code LIKE ? ORDER BY id DESC", (pattern,) * 6).fetchall()
+            if table == "samples":
+                return connection.execute("SELECT * FROM samples WHERE name LIKE ? OR sample_type LIKE ? OR project LIKE ? OR source LIKE ? OR fuel_grade LIKE ? OR lot_number LIKE ? OR tags LIKE ? OR notes LIKE ? OR code LIKE ? ORDER BY id DESC", (pattern,) * 9).fetchall()
+        raise ValueError(f"Unsupported table: {table}")
 
     def save_calculation(self, title, inputs, result, markdown):
         with self.connect() as connection:

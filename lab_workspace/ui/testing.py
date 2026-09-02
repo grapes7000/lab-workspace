@@ -23,13 +23,18 @@ class TestingPage(QWidget):
   for field in fields:
    w=QLineEdit();w.setPlaceholderText(field.get('unit',''));form.addRow(field['name'],w);inputs.append((field,w))
   operator=QLineEdit();instrument=QLineEdit();notes=QLineEdit();form.addRow('Operator',operator);form.addRow('Instrument',instrument);form.addRow('Notes',notes);buttons=QDialogButtonBox(QDialogButtonBox.StandardButton.Save|QDialogButtonBox.StandardButton.Cancel);buttons.accepted.connect(d.accept);buttons.rejected.connect(d.reject);form.addRow(buttons)
-  if d.exec():
+  while d.exec():
    values=[]
+   invalid=[]
    for field,w in inputs:
     text=w.text().strip();v={'field_key':field['key'],'unit':field.get('unit','')}
     if field['type']=='number':
      try:v['numeric_value']=float(text)
-     except ValueError:v['text_value']=text
+     except ValueError:invalid.append(field['name'])
     else:v['text_value']=text
     values.append(v)
+   if invalid:
+    QMessageBox.warning(d,'Invalid numeric result',f"Enter numeric values for: {', '.join(invalid)}")
+    continue
    run=self.db.save_run(request,method_code,values,{'operator':operator.text(),'instrument':instrument.text(),'notes':notes.text()});QMessageBox.information(self,'Saved',f'Result saved as {run}')
+   return
