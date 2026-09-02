@@ -1,4 +1,8 @@
-from PySide6.QtCore import Qt, QTimer, Signal
+import os
+from pathlib import Path
+from urllib.parse import quote
+
+from PySide6.QtCore import Qt, QTimer, QUrl, Signal
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPlainTextEdit, QPushButton, QSplitter, QStackedWidget, QTextBrowser, QVBoxLayout, QWidget
 
 
@@ -52,6 +56,7 @@ class MarkdownPanel(QWidget):
         layout.addWidget(header_widget)
         layout.addWidget(self.stack)
         self._syncing = False
+        self.document_path = None
         self.editor.textChanged.connect(lambda: self.sync_from(self.editor))
         self.split_editor.textChanged.connect(lambda: self.sync_from(self.split_editor))
         self.edit_button.clicked.connect(lambda: self.set_mode(0))
@@ -86,6 +91,30 @@ class MarkdownPanel(QWidget):
         self.counter.setText(f"{len(text.split()):,} words | {len(text):,} characters")
         self.update_preview()
 
+    def set_document_path(self, path):
+        self.document_path = Path(path) if path else None
+        base_url = QUrl() if self.document_path is None else QUrl.fromLocalFile(str(self.document_path.parent) + os.sep)
+        self.preview.document().setBaseUrl(base_url)
+        self.split_preview.document().setBaseUrl(base_url)
+
+    @staticmethod
+    def image_markdown(path, document_path=None):
+        image_path = Path(path)
+        if document_path:
+            reference = quote(os.path.relpath(image_path, Path(document_path).parent).replace(os.sep, "/"))
+        else:
+            reference = QUrl.fromLocalFile(str(image_path)).toString(QUrl.ComponentFormattingOption.FullyEncoded)
+        return f"![{image_path.stem}]({reference})"
+
+    def insert_markdown(self, text):
+        editor = self.split_editor if self.split_editor.hasFocus() else self.editor
+        cursor = editor.textCursor()
+        cursor.insertText(text)
+        editor.setTextCursor(cursor)
+
+    def insert_image(self, path):
+        self.insert_markdown(self.image_markdown(path, self.document_path))
+
     def text(self):
         return self.editor.toPlainText()
 
@@ -97,5 +126,6 @@ class MarkdownPanel(QWidget):
             button.setEnabled(button_index != index)
 
     def update_preview(self):
+        self.set_document_path(self.document_path)
         self.preview.setMarkdown(self.text())
         self.split_preview.setMarkdown(self.text())

@@ -79,6 +79,11 @@ class MainWindow(QMainWindow):
         self.export_final_action = QAction("Export Final Markdown...", self, triggered=self.save_final_as)
         self.export_all_action = QAction("Export Complete Workspace...", self, triggered=self.export_workspace)
         self.find_action = QAction("Find...", self, shortcut=QKeySequence.StandardKey.Find, triggered=self.find_text)
+        self.insert_image_action = QAction("Insert Image...", self, triggered=self.insert_image)
+        self.insert_link_action = QAction("Insert Link...", self, triggered=self.insert_link)
+        self.insert_table_action = QAction("Insert Table", self, triggered=lambda: self.final.insert_markdown("| Column 1 | Column 2 |\n| --- | --- |\n|  |  |\n"))
+        self.insert_task_action = QAction("Insert Task List", self, triggered=lambda: self.final.insert_markdown("- [ ] Task\n"))
+        self.insert_code_action = QAction("Insert Code Block", self, triggered=lambda: self.final.insert_markdown("```text\n\n```\n"))
         self.calc_action = self.calculator.toggleViewAction()
         self.calc_action.setText("Science Calculator")
         self.library_action = self.library.toggleViewAction()
@@ -94,7 +99,11 @@ class MainWindow(QMainWindow):
             file_menu.addAction(action)
         file_menu.addSeparator()
         file_menu.addAction("Exit", self.close)
-        self.menuBar().addMenu("Edit").addAction(self.find_action)
+        edit_menu = self.menuBar().addMenu("Edit")
+        edit_menu.addAction(self.find_action)
+        insert_menu = edit_menu.addMenu("Insert")
+        for action in (self.insert_image_action, self.insert_link_action, self.insert_table_action, self.insert_task_action, self.insert_code_action):
+            insert_menu.addAction(action)
         view_menu = self.menuBar().addMenu("View")
         view_menu.addAction(self.calc_action)
         view_menu.addAction(self.library_action)
@@ -188,6 +197,7 @@ class MainWindow(QMainWindow):
         if QMessageBox.question(self, "New Document", "Clear the final document? Its history remains permanent.") == QMessageBox.StandardButton.Yes:
             self.final.set_text("")
             self.current_file = None
+            self.final.set_document_path(None)
             self.database.save_text("final", "", "new document", True)
 
     def open_final(self):
@@ -201,6 +211,7 @@ class MainWindow(QMainWindow):
             return
         self.final.set_text(text)
         self.current_file = Path(name)
+        self.final.set_document_path(self.current_file)
         self.database.save_text("final", text, f"opened {self.current_file.name}", True)
         self.setWindowTitle(f"Lab Workspace - {self.current_file.name}")
 
@@ -220,6 +231,7 @@ class MainWindow(QMainWindow):
         if not name:
             return False
         self.current_file = Path(name)
+        self.final.set_document_path(self.current_file)
         self.setWindowTitle(f"Lab Workspace - {self.current_file.name}")
         return self.save_final_file()
 
@@ -241,6 +253,19 @@ class MainWindow(QMainWindow):
         term, ok = QInputDialog.getText(self, "Find", "Text to find:")
         if ok and term and not editor.find(term):
             QMessageBox.information(self, "Find", "Text not found from the current cursor position.")
+
+    def insert_image(self):
+        name, _ = QFileDialog.getOpenFileName(self, "Insert Image", "", "Images (*.png *.jpg *.jpeg *.gif *.bmp *.webp *.svg);;All files (*)")
+        if name:
+            self.final.insert_image(Path(name))
+
+    def insert_link(self):
+        label, ok = QInputDialog.getText(self, "Insert Link", "Link text:")
+        if not ok:
+            return
+        url, ok = QInputDialog.getText(self, "Insert Link", "URL:")
+        if ok and url.strip():
+            self.final.insert_markdown(f"[{label.strip() or url.strip()}]({url.strip()})")
 
     def append_markdown(self, text):
         self.final.editor.appendPlainText("\n" + text)
