@@ -30,7 +30,10 @@ from lab_workspace.ui.safe_docking import ToolHost
 
 
 class MainWindow(QMainWindow):
-    LAYOUT_STATE_VERSION = 2
+    # Qt's serialized dock state is unsafe while tools can move between dock
+    # hosts and the center workspace.  Keep geometry, but never restore a
+    # QMainWindow state blob that can retain stale layout references.
+    LAYOUT_STATE_VERSION = 4
     TOOL_TITLES = {
         "writing": "Writing",
         "calculator": "Science Calculator",
@@ -124,7 +127,9 @@ class MainWindow(QMainWindow):
             raise RuntimeError(f"Tool dock {key!r} has no content widget")
         # Replace the dock's managed content before handing the tool to the
         # host.  QDockWidget's internal layout must never retain the tool while
-        # that tool is attached to a center-pane layout.
+        # that tool is attached to a center-pane layout.  setWidget() deletes
+        # the prior dock widget unless it has been detached first.
+        tool.setParent(None)
         host = ToolHost(None, dock)
         dock.setWidget(host)
         host.set_tool(tool)
@@ -234,8 +239,12 @@ class MainWindow(QMainWindow):
         self.insert_code_action = QAction(
             "Insert Code Block",
             self,
-            triggered=lambda: self.final.insert_markdown("```text\n\n```\n"),
+            triggered=lambda: self.final.insert_template("code_block"),
         )
+        self.markdown_actions = {
+            key: QAction(label, self, triggered=lambda checked=False, template=key: self.final.insert_template(template))
+            for label, key in MarkdownPanel.INSERT_ITEMS
+        }
         self.new_workspace_action = QAction(
             "New Workspace...", self, triggered=self.new_workspace
         )
@@ -284,6 +293,9 @@ class MainWindow(QMainWindow):
             self.insert_code_action,
         ):
             insert_menu.addAction(action)
+        markdown_menu = insert_menu.addMenu("Markdown")
+        for label, key in MarkdownPanel.INSERT_ITEMS:
+            markdown_menu.addAction(self.markdown_actions[key])
 
         view_menu = self.menuBar().addMenu("View")
         view_menu.addAction(self.explorer_action)
@@ -508,11 +520,9 @@ class MainWindow(QMainWindow):
             self.database.get_workspace_text(workspace_id, "scratchpad")
         )
         self.final.set_text(self.database.get_workspace_text(workspace_id, "final"))
-        latest = self.database.latest_deleted_fragment(self.workspace_key("scratchpad"))
-        if latest:
-            self.scratch.set_ghost(latest["fragment"])
-        else:
-            self.scratch.clear_ghost()
+        self.scratch.set_ghosts(
+            self.database.unrecovered_deleted_fragments(self.workspace_key("scratchpad"))
+        )
         self.load_workspace_file()
         self.loading = False
 
@@ -576,7 +586,8 @@ class MainWindow(QMainWindow):
         self.final.checkpoint_requested.connect(
             lambda: self.checkpoint(self.workspace_key("final"), self.final.text())
         )
-        self.scratch.deletion_detected.connect(self.record_deletion)
+        self.scratch.deletion_grouped.connect(self.record_deletion)
+        self.scratch.ghosts_overwritten.connect(self.resolve_overwritten_deletions)
         self.scratch.recover_requested.connect(self.recover_deleted)
 
     def load_state(self):
@@ -586,12 +597,10 @@ class MainWindow(QMainWindow):
             layout_version = 0
         layout_is_current = layout_version == self.LAYOUT_STATE_VERSION
         geometry = self.settings.value("geometryV2") if layout_is_current else None
-        state = self.settings.value("windowStateV2") if layout_is_current else None
+        state = None
         writing_splitter = self.settings.value("writingSplitter")
         if geometry:
             self.restoreGeometry(geometry)
-        if state:
-            self.restoreState(state)
         if writing_splitter:
             self.writing_splitter.restoreState(writing_splitter)
 
@@ -674,6 +683,9 @@ class MainWindow(QMainWindow):
             self.autosave.start()
 
     def save_both(self):
+        # A workspace switch or close must commit any active deletion burst
+        # before the active workspace can change.
+        self.scratch.flush_deletion_group()
         if self.current_workspace_id is None:
             return False
         changed = self.database.save_workspace_text(
@@ -693,7 +705,8 @@ class MainWindow(QMainWindow):
 
     def record_deletion(self, fragment, position):
         key = self.workspace_key("scratchpad")
-        self.database.record_deleted_fragment(key, fragment, position)
+        fragment_id = self.database.record_deleted_fragment(key, fragment, position)
+        self.scratch.commit_ghost(fragment_id, fragment, position)
         self.database.save_workspace_text(
             self.current_workspace_id,
             "scratchpad",
@@ -701,26 +714,28 @@ class MainWindow(QMainWindow):
             "text deleted",
             True,
         )
-        self.scratch.set_ghost(fragment)
 
     def recover_deleted(self):
         key = self.workspace_key("scratchpad")
-        row = self.database.latest_deleted_fragment(key)
-        if not row:
+        ghost = self.scratch.latest_ghost()
+        if not ghost:
             self.statusBar().showMessage("No unrecovered deleted text", 2000)
             return
-        self.scratch.insert_recovered(row["fragment"], row["position"])
-        self.database.mark_fragment_recovered(row["id"])
+        self.scratch.insert_recovered(ghost["fragment"], ghost["position"])
+        self.database.mark_fragment_recovered(ghost["id"])
+        self.scratch.remove_ghost(ghost["id"])
         self.database.save_workspace_text(
             self.current_workspace_id,
             "scratchpad",
             self.scratch.editor.toPlainText(),
-            f"recovered deletion {row['id']}",
+            f"recovered deletion {ghost['id']}",
             True,
         )
-        next_row = self.database.latest_deleted_fragment(key)
-        self.scratch.set_ghost(next_row["fragment"]) if next_row else self.scratch.clear_ghost()
         self.statusBar().showMessage("Deleted text recovered", 2500)
+
+    def resolve_overwritten_deletions(self, fragment_ids):
+        for fragment_id in fragment_ids:
+            self.database.mark_fragment_recovered(int(fragment_id))
 
     def checkpoint(self, key, text):
         reason, ok = QInputDialog.getText(
@@ -901,7 +916,7 @@ class MainWindow(QMainWindow):
         self.save_both()
         self.settings.setValue("layoutStateVersion", self.LAYOUT_STATE_VERSION)
         self.settings.setValue("geometryV2", self.saveGeometry())
-        self.settings.setValue("windowStateV2", self.saveState())
+        self.settings.remove("windowStateV2")
         self.settings.setValue("writingSplitter", self.writing_splitter.saveState())
         self.settings.setValue(
             "center/orientation", int(self.center_host.splitter.orientation().value)

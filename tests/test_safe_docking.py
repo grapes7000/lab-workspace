@@ -11,6 +11,10 @@ class SafeDockingDesignTests(unittest.TestCase):
 
         self.assertIn("class ToolHost(QWidget)", docking_source)
         self.assertIn("dock.setWidget(host)", main_source)
+        self.assertLess(
+            main_source.index("tool.setParent(None)"),
+            main_source.index("dock.setWidget(host)"),
+        )
         self.assertIn("self.tool_hosts[key].take_tool()", main_source)
         self.assertIn("self.tool_hosts[key].set_tool(content)", main_source)
         self.assertNotIn("dock.setParent(target.content)", main_source)

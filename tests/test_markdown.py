@@ -27,6 +27,21 @@ class MarkdownTests(unittest.TestCase):
             html.index("katex-auto-render.min.js"),
         )
 
+    def test_preview_contains_safe_obsidian_style_rendering(self):
+        html = RichMarkdownPreview.html_for_markdown(
+            "> [!WARNING] Careful\n> Details\n\n==highlight== [[Note|Shown]] ![[file.png]] #lab"
+        )
+        for marker in (
+            "installCallouts", "callout-warning", "replaceObsidianSyntax",
+            "wiki-link", "obsidian-embed", "markdown-tag",
+        ):
+            self.assertIn(marker, html)
+        self.assertIn("html:false", html)
+
+    def test_markdown_menu_includes_obsidian_focused_templates(self):
+        keys = {key for _label, key in MarkdownPanel.INSERT_ITEMS}
+        self.assertTrue({"callout", "wiki_link", "embed", "highlight", "tag"} <= keys)
+
 
 if __name__ == "__main__":
     unittest.main()

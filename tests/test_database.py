@@ -10,5 +10,8 @@ class DatabaseTests(unittest.TestCase):
    self.assertEqual(db.get_text('scratchpad'),'draft');self.assertTrue(m.startswith('MAT-'));self.assertTrue(s.startswith('SMP-'))
    db.save_sample({'code':s,'name':'Fuel B','sample_type':'Gasoline'})
    self.assertEqual(db.search('samples','Fuel B')[0]['name'],'Fuel B')
+   first=db.record_deleted_fragment('scratchpad','first',0);second=db.record_deleted_fragment('scratchpad','second',4)
+   db.mark_fragment_recovered(first)
+   self.assertEqual([(row['id'],row['fragment']) for row in db.unrecovered_deleted_fragments('scratchpad')],[(second,'second')])
    with self.assertRaises(ValueError):db.next_code('samples; DROP TABLE samples','SMP')
 if __name__=='__main__':unittest.main()

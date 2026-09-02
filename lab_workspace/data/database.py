@@ -129,6 +129,14 @@ class Database:
                 (key,),
             ).fetchone()
 
+    def unrecovered_deleted_fragments(self, key="scratchpad"):
+        """Return pending deletions in recovery order (newest first)."""
+        with self.connect() as connection:
+            return connection.execute(
+                "SELECT * FROM deleted_fragments WHERE document_key=? AND recovered_at IS NULL ORDER BY id DESC",
+                (key,),
+            ).fetchall()
+
     def mark_fragment_recovered(self, fragment_id):
         with self.connect() as connection:
             connection.execute(
