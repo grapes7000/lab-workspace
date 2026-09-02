@@ -3,11 +3,23 @@ QWidget { background:#F5F5F6; color:#292B2F; font-size:13px; }
 QMainWindow, QDialog { background:#F5F5F6; }
 QWidget#WorkPane { background:#FFFFFF; border:0; border-radius:0; }
 QWidget#PaneHeader { background:#FFFFFF; border:0; border-bottom:1px solid #D3D4D7; border-radius:0; }
+QWidget#CenterHost, QWidget#CenterPaneContent { background:#FFFFFF; }
+QWidget#CenterControls, QWidget#CenterPaneHeader { background:#F1F1F2; border:0; border-bottom:1px solid #D3D4D7; }
+QLabel#CenterControlsTitle, QLabel#CenterPaneLabel, QLabel#ExplorerTitle { font-size:11px; font-weight:700; letter-spacing:1px; }
+QLabel#CenterPaneEmpty, QLabel#ExplorerHint { color:#72757B; background:transparent; padding:8px; }
+QWidget#WorkspaceExplorer { background:#F7F7F8; }
+QTreeWidget { background:#F7F7F8; border:0; padding:2px; }
+QTreeWidget::item { min-height:24px; border-radius:3px; }
+QTreeWidget::item:hover { background:#E8E9EB; }
+QTreeWidget::item:selected { background:#DDE8F2; color:#202226; }
 QPlainTextEdit, QTextBrowser, QLineEdit, QComboBox, QDoubleSpinBox, QListWidget, QTableWidget {
  background:#FFFFFF; border:1px solid #D0D1D4; border-radius:3px; padding:6px;
  selection-background-color:#B9D8F2;
 }
 QToolBar { background:#F1F1F2; border:0; border-bottom:1px solid #D3D4D7; spacing:1px; padding:4px; }
+QToolBar#ActivityRail { background:#E9EAEC; border:0; border-right:1px solid #CBCDD1; spacing:3px; padding:4px 3px; }
+QToolBar#ActivityRail QToolButton { border-radius:4px; padding:7px; min-width:28px; min-height:28px; }
+QToolBar#ActivityRail QToolButton:hover { background:#DCDDE0; }
 QPushButton, QToolButton {
  background:transparent; border:1px solid transparent; border-bottom:0;
  border-radius:4px 4px 0 0; padding:7px 10px;
@@ -35,11 +47,23 @@ QWidget { background:#202124; color:#ECEEF1; font-size:13px; }
 QMainWindow, QDialog { background:#202124; }
 QWidget#WorkPane { background:#25262A; border:0; border-radius:0; }
 QWidget#PaneHeader { background:#25262A; border:0; border-bottom:1px solid #414349; border-radius:0; }
+QWidget#CenterHost, QWidget#CenterPaneContent { background:#25262A; }
+QWidget#CenterControls, QWidget#CenterPaneHeader { background:#222327; border:0; border-bottom:1px solid #414349; }
+QLabel#CenterControlsTitle, QLabel#CenterPaneLabel, QLabel#ExplorerTitle { font-size:11px; font-weight:700; letter-spacing:1px; }
+QLabel#CenterPaneEmpty, QLabel#ExplorerHint { color:#9A9DA4; background:transparent; padding:8px; }
+QWidget#WorkspaceExplorer { background:#222327; }
+QTreeWidget { background:#222327; border:0; padding:2px; }
+QTreeWidget::item { min-height:24px; border-radius:3px; }
+QTreeWidget::item:hover { background:#303136; }
+QTreeWidget::item:selected { background:#313E4B; color:#F0F2F5; }
 QPlainTextEdit, QTextBrowser, QLineEdit, QComboBox, QDoubleSpinBox, QListWidget, QTableWidget {
  background:#2A2B2F; border:1px solid #46484E; border-radius:3px; padding:6px;
  selection-background-color:#315F8C;
 }
 QToolBar { background:#25262A; border:0; border-bottom:1px solid #414349; spacing:1px; padding:4px; }
+QToolBar#ActivityRail { background:#1B1C1F; border:0; border-right:1px solid #414349; spacing:3px; padding:4px 3px; }
+QToolBar#ActivityRail QToolButton { border-radius:4px; padding:7px; min-width:28px; min-height:28px; }
+QToolBar#ActivityRail QToolButton:hover { background:#303136; }
 QPushButton, QToolButton {
  background:transparent; border:1px solid transparent; border-bottom:0;
  border-radius:4px 4px 0 0; padding:7px 10px;
