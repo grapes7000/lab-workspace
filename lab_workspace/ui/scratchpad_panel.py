@@ -1,7 +1,9 @@
 import difflib
+
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QKeyEvent, QTextCursor
-from PySide6.QtWidgets import QPlainTextEdit, QLabel
+from PySide6.QtGui import QKeyEvent
+from PySide6.QtWidgets import QLabel, QPlainTextEdit
+
 from lab_workspace.ui.editor_panel import EditorPanel
 
 
@@ -57,8 +59,7 @@ class ScratchpadPanel(EditorPanel):
         self._previous_text = current
 
     def set_ghost(self, fragment):
-        display = fragment.replace("\n", " ↵ ")
-        self.ghost.setText(f"Deleted, preserved in history: {display}    [Tab to recover]")
+        self.ghost.setText(f"Deleted, preserved in history: {fragment.replace(chr(10), ' ↵ ')}    [Tab to recover]")
 
     def clear_ghost(self):
         self.ghost.setText("No unrecovered deletion. All prior scratchpad states remain in History.")
@@ -66,8 +67,7 @@ class ScratchpadPanel(EditorPanel):
     def insert_recovered(self, fragment, position):
         self._tracking = False
         cursor = self.editor.textCursor()
-        position = min(max(0, position), len(self.editor.toPlainText()))
-        cursor.setPosition(position)
+        cursor.setPosition(min(max(0, position), len(self.editor.toPlainText())))
         cursor.insertText(fragment)
         self.editor.setTextCursor(cursor)
         self._previous_text = self.editor.toPlainText()

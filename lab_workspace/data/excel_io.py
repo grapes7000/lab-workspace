@@ -4,7 +4,7 @@ def export_workbook(db,path):
  from openpyxl import Workbook
  from openpyxl.styles import Font,PatternFill
  wb=Workbook();wb.remove(wb.active)
- for table,title in (("materials","Materials"),("samples","Samples"),("test_requests","Test Requests")):
+ for table,title in (("materials","Materials"),("samples","Samples")):
   ws=wb.create_sheet(title); rows=db.search(table,'')
   if rows:
    headers=list(rows[0].keys());ws.append(headers)
