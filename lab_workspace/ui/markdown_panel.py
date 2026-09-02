@@ -8,9 +8,13 @@ class MarkdownPanel(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setObjectName("WorkPane")
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
-        header = QHBoxLayout()
+        header_widget = QWidget()
+        header_widget.setObjectName("PaneHeader")
+        header = QHBoxLayout(header_widget)
+        header.setContentsMargins(6, 3, 6, 3)
         header.setSpacing(1)
         title = QLabel("Final Document")
         title.setObjectName("PanelTitle")
@@ -45,7 +49,7 @@ class MarkdownPanel(QWidget):
         self.stack.addWidget(self.editor)
         self.stack.addWidget(self.preview)
         self.stack.addWidget(self.splitter)
-        layout.addLayout(header)
+        layout.addWidget(header_widget)
         layout.addWidget(self.stack)
         self._syncing = False
         self.editor.textChanged.connect(lambda: self.sync_from(self.editor))

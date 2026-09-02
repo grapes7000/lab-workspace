@@ -8,9 +8,13 @@ class EditorPanel(QWidget):
 
     def __init__(self, title, placeholder, parent=None):
         super().__init__(parent)
+        self.setObjectName("WorkPane")
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
-        header = QHBoxLayout()
+        header_widget = QWidget()
+        header_widget.setObjectName("PaneHeader")
+        header = QHBoxLayout(header_widget)
+        header.setContentsMargins(6, 3, 6, 3)
         header.setSpacing(1)
         label = QLabel(title); label.setObjectName("PanelTitle")
         self.counter = QLabel("0 words | 0 characters")
@@ -24,7 +28,7 @@ class EditorPanel(QWidget):
         self.editor.setPlaceholderText(placeholder)
         self.editor.setTabStopDistance(32)
         self.editor.textChanged.connect(self.update_count)
-        layout.addLayout(header); layout.addWidget(self.editor)
+        layout.addWidget(header_widget); layout.addWidget(self.editor)
 
     def update_count(self):
         text = self.editor.toPlainText()

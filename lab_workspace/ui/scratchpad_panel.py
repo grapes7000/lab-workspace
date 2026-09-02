@@ -28,6 +28,7 @@ class ScratchpadPanel(EditorPanel):
         self.editor.setPlaceholderText(placeholder)
         self.editor.setTabStopDistance(32)
         self.layout().replaceWidget(old_editor, self.editor)
+        old_editor.hide()
         old_editor.deleteLater()
         self.ghost = QLabel("Deleted text will appear here. Press Tab in the scratchpad to recover it.")
         self.ghost.setObjectName("GhostText")
