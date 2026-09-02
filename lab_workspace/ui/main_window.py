@@ -29,7 +29,7 @@ class MainWindow(QMainWindow):
             | QMainWindow.DockOption.AllowTabbedDocks
             | QMainWindow.DockOption.GroupedDragging
         )
-        apply_theme(QApplication.instance(), self.settings.value("theme", "dark"))
+        apply_theme(QApplication.instance(), self.settings.value("theme", "light"))
 
         self.scratch = ScratchpadPanel("Scratchpad", "Temporary notes. Deleted text is preserved and recoverable with Tab.")
         self.final = MarkdownPanel()
@@ -251,7 +251,7 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("Calculator result copied", 2000)
 
     def toggle_theme(self):
-        name = "light" if self.settings.value("theme", "dark") == "dark" else "dark"
+        name = "dark" if self.settings.value("theme", "light") == "light" else "light"
         self.settings.setValue("theme", name)
         apply_theme(QApplication.instance(), name)
 
