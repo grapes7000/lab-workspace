@@ -9,13 +9,15 @@ QPlainTextEdit, QTextBrowser, QLineEdit, QComboBox, QDoubleSpinBox, QListWidget,
 }
 QToolBar { background:#F1F1F2; border:0; border-bottom:1px solid #D3D4D7; spacing:1px; padding:4px; }
 QPushButton, QToolButton {
- background:#F1F1F2; border-top:1px solid #FAFAFB; border-left:1px solid #FAFAFB;
- border-right:1px solid #D1D2D5; border-bottom:1px solid #D1D2D5; border-radius:4px; padding:6px 10px;
+ background:transparent; border:1px solid transparent; border-bottom:0;
+ border-radius:4px 4px 0 0; padding:7px 10px;
 }
-QPushButton:hover, QToolButton:hover { background:#F8F8F9; }
+QPushButton:hover, QToolButton:hover {
+ background:#E1E2E5; border-top-color:#D1D2D5; border-left-color:#D1D2D5; border-right-color:#D1D2D5;
+}
 QPushButton:pressed, QToolButton:pressed {
- background:#ECEDEF; border-top-color:#D1D2D5; border-left-color:#D1D2D5;
- border-right-color:#FAFAFB; border-bottom-color:#FAFAFB; padding:7px 9px 5px 11px;
+ background:#D7D8DB; border-top-color:#C5C6C9; border-left-color:#C5C6C9; border-right-color:#C5C6C9;
+ padding:8px 9px 6px 11px;
 }
 QHeaderView::section { background:#F0F0F1; border:0; border-right:1px solid #D3D4D7; border-bottom:1px solid #D3D4D7; padding:5px; }
 QLabel#PanelTitle { font-size:15px; font-weight:600; background:transparent; }
@@ -39,13 +41,15 @@ QPlainTextEdit, QTextBrowser, QLineEdit, QComboBox, QDoubleSpinBox, QListWidget,
 }
 QToolBar { background:#25262A; border:0; border-bottom:1px solid #414349; spacing:1px; padding:4px; }
 QPushButton, QToolButton {
- background:#303136; border-top:1px solid #3C3E44; border-left:1px solid #3C3E44;
- border-right:1px solid #222328; border-bottom:1px solid #222328; border-radius:4px; padding:6px 10px;
+ background:transparent; border:1px solid transparent; border-bottom:0;
+ border-radius:4px 4px 0 0; padding:7px 10px;
 }
-QPushButton:hover, QToolButton:hover { background:#383A40; }
+QPushButton:hover, QToolButton:hover {
+ background:#383A40; border-top-color:#4A4C52; border-left-color:#4A4C52; border-right-color:#4A4C52;
+}
 QPushButton:pressed, QToolButton:pressed {
- background:#2B2C31; border-top-color:#222328; border-left-color:#222328;
- border-right-color:#3C3E44; border-bottom-color:#3C3E44; padding:7px 9px 5px 11px;
+ background:#303136; border-top-color:#24252A; border-left-color:#24252A; border-right-color:#24252A;
+ padding:8px 9px 6px 11px;
 }
 QHeaderView::section { background:#2F3035; border:0; border-right:1px solid #414349; border-bottom:1px solid #414349; padding:5px; }
 QLabel#PanelTitle { font-size:15px; font-weight:600; background:transparent; }
